@@ -1,0 +1,19 @@
+<html>
+<form method="post" action="http://127.0.0.1:8000/FindTweets/redirect/">
+{% csrf_token %}
+Name:
+<input name="name" type="text"/>
+<br/><br/>
+Twitter handle:
+<input name="username" type="text"/>
+</br></br>
+ Phone number:
+<input name="phone" type="text"/>
+</br></br>
+Address
+<input name="address" type="text"/>
+</br></br>
+<input type="submit" name="action" value="Register">
+</form>
+{{hashvalue}}
+</html>
