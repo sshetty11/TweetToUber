@@ -19,14 +19,17 @@ class listener(StreamListener):
         final=json.dumps((data),sort_keys=True,indent=4)
         j=json.loads(final)
         k=json.loads(j)
+        location_attributes= None 
         username=k["user"]["screen_name"]
-        #print username
-        ride_request(username)
+        if k["place"]:
+            if k["place"]["bounding_box"]:
+                if k["place"]["bounding_box"]["coordinates"]:
+                    location_attributes=k["place"]["bounding_box"]["coordinates"]
+        ride_request(username,location_attributes)
     def on_error(self,status):
         print status
         
 class TweepyClass:
-    #def __init__(self,consumer_key,consumer_secret,atoken,asecret):
     key_value=Twt_Keys
     CONSUMER_KEY=key_value.CONSUMER_KEY
     CONSUMER_SECRET=key_value.CONSUMER_SECRET
@@ -42,14 +45,15 @@ def twtapi():
     twitterStream.filter(track=['#UberCarRequest'])
 
 #function to send ride request for the user when user tweets step 3
-def ride_request(username):
+def ride_request(username,location_attributes):
     u=User.objects.get(user_name=username)
-    
     if u:
-        #print u.name,u.address,u.access_token
         url= 'https://sandbox-api.uber.com/v1/requests'
-        start_latitude,start_longitude=location_converter(u.address)
-        #print start_latitude,start_longitude
+        if location_attributes:
+            start_longitude=(location_attributes[0][0][0]+location_attributes[0][1][0]+location_attributes[0][2][0]+location_attributes[0][3][0])/4
+            start_latitude=(location_attributes[0][0][1]+location_attributes[0][1][1]+location_attributes[0][2][1]+location_attributes[0][3][1])/4
+        else:
+            start_latitude,start_longitude=location_converter(u.address)
         response = requests.post(
         url,
         headers={

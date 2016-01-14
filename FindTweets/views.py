@@ -1,12 +1,8 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import RequestContext, loader
-#from twython import Twython
-#from tweepy import Stream
-#from tweepy import OAuthHandler
-#from tweepy.streaming import StreamListener
-#from FindTweets.envs import TweepyClass,listener
 from rauth import OAuth2Service
+from FindTweets.keys import Uber_keys
 from FindTweets.models import User, Request
 from django.views.decorators.csrf import csrf_protect
 import json
@@ -18,10 +14,8 @@ user_address=''
 
 #VIEW START
 def index(request):
-    hashvalue='A'
     template = loader.get_template('FindTweets/index.html')
     context = RequestContext(request)
-    #return HttpResponse(template.render(context))
     return render(request,'FindTweets/index.html',{})
 
 #redirected to this view on post
@@ -39,7 +33,6 @@ def redirect(request):
             return login_redirect()
     template = loader.get_template('FindTweets/index.html')
     context = RequestContext(request)
-    #return HttpResponse(template.render(context))
     return render(request,'FindTweets/index.html',{})
 
 #VIEW END
@@ -49,9 +42,10 @@ def redirect(request):
 #REGISTERING PART START
 #function to register the user  step 1
 def login_redirect():
+    keys=Uber_keys
     uber_api = OAuth2Service(
-     client_id='g2qpdEcMsUT59bZ0vp7QNDdaX4l7cx02',
-     client_secret='dSuZXHijPe1LaH-xTh1eFOq1ZYnKtWKZzUK5IWQM',
+     client_id=keys.CLIENT_ID,
+     client_secret=keys.CLIENT_SECRET,
      name='TweetToRide',
      authorize_url='https://login.uber.com/oauth/authorize',
      access_token_url='https://login.uber.com/oauth/token',
@@ -65,7 +59,6 @@ def login_redirect():
 
     # Redirect user here to authorize your application
     login_url = uber_api.get_authorize_url(**parameters)
-    #print login_url
     #redirect to uber login url
     return HttpResponseRedirect(login_url)
 
@@ -78,6 +71,7 @@ def cburl(request):
     global phone
     global first_name
     global user_address
+    keys=Uber_keys
     parameters = {
         'redirect_uri': 'http://localhost:8000/FindTweets/cburl',
         'code': request.GET.get('code'),
@@ -87,8 +81,8 @@ def cburl(request):
     response = requests.post(
     'https://login.uber.com/oauth/token',
     auth=(
-        'g2qpdEcMsUT59bZ0vp7QNDdaX4l7cx02',
-        'dSuZXHijPe1LaH-xTh1eFOq1ZYnKtWKZzUK5IWQM',
+        keys.CLIENT_ID,
+        keys.CLIENT_SECRET,
     ),
     data=parameters,
     )
@@ -104,7 +98,6 @@ def cburl(request):
     print first_name,user_address
     u=User(name=first_name,address=user_address,user_name=username,phone_no=phone,access_token=accesstoken)
     u.save()
-    #return HttpResponse(template.render(context))
     return render(request,'FindTweets/index.html',{'hashvalue':'User Registered successfully'})
 
 #REGISTERING PART END

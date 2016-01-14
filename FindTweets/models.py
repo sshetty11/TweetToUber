@@ -1,10 +1,4 @@
 from __future__ import unicode_literals
-#import os
-#import django
-#import sys
-#sys.path.append("c:/Users/Shilpa/TweetToUber")
-#os.environ["DJANGO_SETTINGS_MODULE"] = "TweetToUber.settings"
-#django.setup()
 from django.db import models
 
 # Create your models here.
